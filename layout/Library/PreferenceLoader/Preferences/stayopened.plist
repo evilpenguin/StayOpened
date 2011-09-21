@@ -30,8 +30,8 @@
 			<string>DontCloseAppStore</string>
 			<key>label</key>
 			<string>Enabled</string>
-			<key>PostNotifications</key>
-			<string>us.nakedproductions.stayopened</string>
+			<key>PostNotification</key>
+			<string>us.nakedproductions.stayopened.enabled</string>
 			<key>defaults</key>
 			<string>us.nakedproductions.stayopened</string>
 		</dict>
@@ -45,13 +45,13 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
-			<true/>
+			<false />
 			<key>key</key>
 			<string>AppStoreFreeTitle</string>
 			<key>label</key>
 			<string>Enabled</string>
-			<key>PostNotifications</key>
-			<string>us.nakedproductions.stayopened</string>
+			<key>PostNotification</key>
+			<string>us.nakedproductions.stayopened.enabled</string>
 			<key>defaults</key>
 			<string>us.nakedproductions.stayopened</string>
 		</dict>
@@ -60,8 +60,6 @@
 			<string>PSEditTextCell</string>
 			<key>placeholder</key>
 			<string>FREE</string>
-			<key>defaults</key>
-			<string>us.nakedproductions.stayopened</string>
 			<key>detail</key>
 			<string>PSDetailController</string>
 			<key>key</key>
@@ -79,13 +77,13 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
-			<true/>
+			<false />
 			<key>key</key>
 			<string>AppStoreConfirmationTitle</string>
 			<key>label</key>
 			<string>Enabled</string>
-			<key>PostNotifications</key>
-			<string>us.nakedproductions.stayopened</string>
+			<key>PostNotification</key>
+			<string>us.nakedproductions.stayopened.enabled</string>
 			<key>defaults</key>
 			<string>us.nakedproductions.stayopened</string>
 		</dict>
@@ -94,20 +92,22 @@
 			<string>PSEditTextCell</string>
 			<key>placeholder</key>
 			<string>StayOpened</string>
-			<key>defaults</key>
-			<string>us.nakedproductions.stayopened</string>
 			<key>detail</key>
 			<string>PSDetailController</string>
 			<key>key</key>
 			<string>AppPurchasedTitle</string>
 			<key>label</key>
 			<string>Title</string>
+			<key>PostNotification</key>
+			<string>us.nakedproductions.stayopened.enabled</string>
+			<key>defaults</key>
+			<string>us.nakedproductions.stayopened</string>
 		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>StayOpened © NakedProductions.US</string>
+			<string>StayOpened © EvilPengu.in</string>
 		</dict>
 	</array>
 </dict>

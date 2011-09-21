@@ -1,9 +1,9 @@
 Package: us.nakedproductions.stayopened
 Name: StayOpened
 Depends: mobilesubstrate
-Version: 1.4
+Version: 1.5
 Architecture: iphoneos-arm
-Description: StayOpened 1.4
+Description: Stop the AppStore from closing when you download applications
 Maintainer: EvilPenguin|
 Author: EvilPenguin|
 Section: Tweaks

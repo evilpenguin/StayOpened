@@ -1,46 +1,49 @@
 /*
  *
  * StayOpened
- * Created by EvilPenguin|
- *
- *
+ * Version: 1.5
+ * Stop the AppStore from closing when you download applications
+ * Copyright (c) 2011 EvilPenguin|
  *
  *
  */
-#include <iTunesUI/SUItemOfferButton.h>
-#include <iTunesUI/SUStoreController.h>
-#include <AppStore/ASApplicationPageView.h>
-#include <UIKit2/UIApplication2.h>
 
+#define REASON_DOWNLOADING_APPS 1
 #define STAYOPENED_PLIST @"/var/mobile/Library/Preferences/us.nakedproductions.stayopened.plist"
+#define isNotEmpty(string) (string != nil || ![string isEqualToString:@""] || ![string isEqualToString:@" "])
+#define listenToNotification$withCallBack(notification, callback); 	\
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), \
+        NULL, \
+        (CFNotificationCallback)&callback, \
+        CFSTR(notification), \
+        NULL, \
+        CFNotificationSuspensionBehaviorHold);
 
-#pragma mark -
-#pragma mark == ASApplicationPageView ==
-
-%hook ASApplicationPageView
-- (void)_reloadButtons {
-	//UIButton *problemButton = MSHookIvar<UIButton *>(self, "_reportAProblemButton");
-	//problemButton.center = CGPointMake(-100, 50);
-	//UIButton *friendButton = MSHookIvar<UIButton *>(self, "_tellAFriendButton"); 
-	//[friendButton removeFromSuperview];
-	%orig;
+static NSMutableDictionary *plistDict = nil;
+static void updateSettings() {
+    NSLog(@"StayOpened: I make icecream sandwiches for everbody");
+	if (plistDict) {
+		[plistDict release]; 
+		plistDict = nil;
+	}
+	plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:STAYOPENED_PLIST];
 }
-%end
 
-
+@interface UIApplication ()
+    - (id) displayIdentifier;
+@end
 
 #pragma mark -
 #pragma mark == SUStoreController ==
 
 %hook SUStoreController
 - (void) exitStoreWithReason:(int)reason {
-	NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:STAYOPENED_PLIST];
-	id value = [plistDict objectForKey:@"DontCloseAppStore"];
-	if (value ? [value boolValue] : YES) { 
-		if (reason == 1) { return; }
+	if ([plistDict objectForKey:@"DontCloseAppStore"] ? [[plistDict objectForKey:@"DontCloseAppStore"] boolValue] : YES) { 
+		if (reason == REASON_DOWNLOADING_APPS) { 
+            return; 
+        }
 	}
 	%orig; 
-	[plistDict release];
 }
 %end
 
@@ -50,10 +53,9 @@
 %hook UIApplication
 - (void) suspend {
 	if ([[self displayIdentifier] isEqualToString:@"com.apple.AppStore"]) {
-		NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:STAYOPENED_PLIST];
-		id value = [plistDict objectForKey:@"DontCloseAppStore"];
-		if (value ? [value boolValue] : YES) { return; }
-		[plistDict release];
+		if ([plistDict objectForKey:@"DontCloseAppStore"] ? [[plistDict objectForKey:@"DontCloseAppStore"] boolValue] : YES) { 
+            return; 
+        }
 	}
 	%orig; 
 }
@@ -64,30 +66,27 @@
 
 %hook SUItemOfferButton
 - (void)setOfferTitle:(id)title {
-	NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:STAYOPENED_PLIST];
-	id value = [plistDict objectForKey:@"AppStoreFreeTitle"];
-	NSString *newTitle = [plistDict objectForKey:@"AppFreePurchasedTitle"];
-	if (value ? [value boolValue] : YES) { 
-		if ([title isEqualToString:@"FREE"]) { 
-			if ([newTitle isEqualToString:@""] || [newTitle isEqualToString:@" "] || newTitle == nil) { newTitle = @"FREE"; }
-			title = newTitle;
-		}
+	if ([plistDict objectForKey:@"AppStoreFreeTitle"] ? [[plistDict objectForKey:@"AppStoreFreeTitle"] boolValue] : NO) { 
+        NSString *newTitle = [plistDict objectForKey:@"AppFreePurchasedTitle"];
+        if (isNotEmpty(newTitle)) { title = newTitle; }
 	}
-	if ([title isEqualToString:@""] || [title isEqualToString:@" "] || title == nil) { newTitle = @"FREE"; }
-	%orig;
-	[plistDict release];
+	%orig(title);
 }
 
 - (void)setConfirmationTitle:(id)title {
-	NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:STAYOPENED_PLIST];
-	id value = [plistDict objectForKey:@"AppStoreConfirmationTitle"];
-	NSString *newTitle = [plistDict objectForKey:@"AppPurchasedTitle"];
-	if (value ? [value boolValue] : YES) { 
-		if ([newTitle isEqualToString:@""] || [newTitle isEqualToString:@" "] || newTitle == nil) { newTitle = @"Download"; }
-		title = newTitle;
+	
+	if ([plistDict objectForKey:@"AppStoreConfirmationTitle"] ? [[plistDict objectForKey:@"AppStoreConfirmationTitle"] boolValue] : NO) { 
+        NSString *newTitle = [plistDict objectForKey:@"AppPurchasedTitle"];
+		if (isNotEmpty(newTitle)) { title = newTitle; }
 	}
-	if ([title isEqualToString:@""] || [title isEqualToString:@" "] || title == nil) { newTitle = @"Download"; }
-	%orig;
-	[plistDict release];
+	%orig(title);
 }
 %end
+
+%ctor {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	%init;
+	listenToNotification$withCallBack("us.nakedproductions.stayopened.enabled", updateSettings);
+	updateSettings();
+	[pool release];
+}
