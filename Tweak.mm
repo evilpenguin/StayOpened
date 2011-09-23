@@ -27,6 +27,9 @@ static void updateSettings() {
 		plistDict = nil;
 	}
 	plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:STAYOPENED_PLIST];
+    if (plistDict == nil) {
+        plistDict = [[NSMutableDictionary alloc] init];
+    }
 }
 
 @interface UIApplication ()
@@ -74,7 +77,6 @@ static void updateSettings() {
 }
 
 - (void)setConfirmationTitle:(id)title {
-	
 	if ([plistDict objectForKey:@"AppStoreConfirmationTitle"] ? [[plistDict objectForKey:@"AppStoreConfirmationTitle"] boolValue] : NO) { 
         NSString *newTitle = [plistDict objectForKey:@"AppPurchasedTitle"];
 		if (isNotEmpty(newTitle)) { title = newTitle; }
